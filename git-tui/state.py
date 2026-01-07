@@ -13,11 +13,7 @@ def create_state(layout):
     ],
     "direction" : "",
     "input_mode" : "navigation",
-    "git_status" : {
-        "to_be_commited": [],
-        "not_staged_for_commit": [],
-        "untracked": [],
-          },
+    "git_status" : [],
     "git_branch" : "",
     "git_log" : []
 

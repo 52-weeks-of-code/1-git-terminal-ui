@@ -59,22 +59,23 @@ def git_status_clean(state):
         },
     }
 
+    types_seen = []
+    for file in state['git_status']:
+        types_seen.append(file['type'])
+    types_seen = list(set(types_seen))
+
+
     text = ""
+    if len(state['git_status']) > 0:
+        for i, file in enumerate(state['git_status']):
+            if (file['type'] in type_map.keys()) and (file['type'] in types_seen):
+                text += type_map[file['type']]['title']
+                types_seen = [git_type for git_type in types_seen if git_type != file['type']]
 
-    all_files = []
-    for type in state['git_status']:
-        all_files += state['git_status'][type]
-
-    all_files
-
-    for type in state['git_status']:
-        if len(state['git_status'][type]) > 0:
-            text += type_map[type]['title']
-            for file in state['git_status'][type]:
-                if file['focused'] == 0:
-                    text += file['file_name'][2:] + '\n'
-                else:
-                    text += '[black on white]' + file['file_name'][2:] + "[/black on white]" + '\n'
+            if file['focused'] == 0:
+                text += "| " + file['file_name'][3:] + '\n'
+            else:
+                text += "| [black on white]" + file['file_name'][3:] + '\n[/black on white]'
 
     return text
     
@@ -88,9 +89,34 @@ Enter: Focus on a view
 """)
     elif state['input_mode'] == "focused":
         text += (
-"""\
-Esc: Return to navigation
+""" \
+Esc: Return to navigation    \
 """
         )
+        if state['focus_table'][1][0]:
+            focused_file = get_git_status_focused_file(state)
+            if focused_file['type'] == "not_staged_for_commit":
+                text += (
+"""\
+A: Add file to be commited    \
+R: Discard changes    \
+""")
+            elif focused_file['type'] == "to_be_commited":
+                text += (
+"""\
+R: Unstage    \
+""")
+            elif focused_file['type'] == "untracked":
+                text += (
+"""\
+A: Add file to be commited    \
+""")
+            else:
+                text += "Arrow Keys: Navigate between files"
     
     return text
+
+def get_git_status_focused_file(state):
+    for file in state['git_status']:
+        if file['focused']:
+            return file

@@ -9,21 +9,17 @@ def get_git_status(state):
     
     if not result.returncode:
 
-        state['git_status'] = {
-            "to_be_commited": [],
-            "not_staged_for_commit": [],
-            "untracked": [],
-        }
+        state['git_status'] = []
 
         files = result.stdout.split('\n')
 
         for file in files:
-            if file.startswith('A'):
-                state['git_status']['to_be_commited'].append({"file_name": file, "focused": False})
-            if file.startswith(' M'):
-                state['git_status']['not_staged_for_commit'].append({"file_name": file, "focused": False})
+            if file.startswith('A') or file.startswith('M'):
+                state['git_status'].append({"file_name": file, 'type': "to_be_commited", "focused": False})
+            if file.startswith(' '):
+                state['git_status'].append({"file_name": file, 'type': "not_staged_for_commit", "focused": False})
             if file.startswith('??'):
-                state['git_status']['untracked'].append({"file_name": file, "focused": False})
+                state['git_status'].append({"file_name": file, 'type': "untracked", "focused": False})
     
 
 def get_git_branch(state):
@@ -48,7 +44,8 @@ def get_git_log(state):
     
 
 def call_and_parse_git(state):
-    get_git_status(state)
+    if not ((state['input_mode'] == 'focused') and (state['focus_table'][1][0])):
+        get_git_status(state)
     get_git_branch(state)
     get_git_log(state)
 

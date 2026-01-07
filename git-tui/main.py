@@ -25,12 +25,11 @@ with Live(renderable=layout, console = console, refresh_per_second=24, screen=Tr
     render_components(state=state, layout=layout)
 
     while True:
+        call_and_parse_git(state=state)
         if msvcrt.kbhit():
             key = msvcrt.getch()
             print(key)
             manage_input(key, state=state)
-        
-        call_and_parse_git(state=state)
 
         render_components(state=state, layout=layout)
 

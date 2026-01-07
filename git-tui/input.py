@@ -20,6 +20,8 @@ def manage_input(key, state):
 
         
         elif key == b'\r':
+            if state['focus_table'][1][0]:
+                state['git_status'][0]['focused'] = True
             state['input_mode'] = "focused"
 
     elif state['input_mode'] == "focused":
@@ -36,7 +38,16 @@ def manage_input(key, state):
             pass
 
         elif state['focus_table'][1][0]:
-            pass
+            if key == b'\xe0':
+                key = msvcrt.getch()
+                if key == b'H':
+                    state['direction'] = "up"
+                    update_git_status_focus(state)
+                elif key == b'P':
+                    state['direction'] = "down"
+                    update_git_status_focus(state)
+
+            
         
         elif state['focus_table'][1][1]:
             pass
@@ -83,3 +94,22 @@ def update_focus_table(focus_table, direction):
 
         focus_table[current_focus_col_index][current_focus_row_index] = 0
         focus_table[new_focus_col_index][new_focus_row_index] = 1
+
+def update_git_status_focus(state):
+    
+    for index, file in enumerate(state['git_status']):
+        if file['focused'] == 1:
+            break
+
+    if state['direction'] == 'up':
+        to_add = -1
+    elif state['direction'] == "down":
+        to_add = 1
+    else: 
+        to_add = 0
+
+    state['git_status'][index]['focused'] = 0
+    state['git_status'][(index+to_add) % len(state['git_status'])]['focused'] = 1
+
+    
+

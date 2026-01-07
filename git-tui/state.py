@@ -1,5 +1,6 @@
 def create_state(layout):
     return  {
+    "repo_name" : "", 
     "focus_table" : [
         [
             0,
@@ -15,7 +16,8 @@ def create_state(layout):
     "input_mode" : "navigation",
     "git_status" : [],
     "git_branch" : "",
-    "git_log" : []
+    "git_log" : [],
+    "debug" : ""
 
 
 }

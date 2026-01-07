@@ -3,7 +3,7 @@ from rich import box as rbox
 
 def render_components(state, layout):
     layout['upper'].update(
-        Panel('* 1-git-terminal-ui', title='Repo',title_align='left', **panel_style(state['focus_table'][0][0], state=state))
+        Panel(f'* {state['repo_name']}', title='Repo',title_align='left', **panel_style(state['focus_table'][0][0], state=state))
     )
 
     layout['middle'].update(
@@ -19,7 +19,7 @@ def render_components(state, layout):
         Panel(git_status_clean(state), title='Git Status', title_align='left', **panel_style(state['focus_table'][1][0], state=state))
     )
     layout['footer'].update(
-        Panel(state['input_mode'], title='Status Bar', title_align='left', **panel_style(state['focus_table'][1][1], state=state))
+        Panel(state['debug'], title='Status Bar', title_align='left', **panel_style(state['focus_table'][1][1], state=state))
     )
 
     layout['keybinds'].update(
@@ -75,7 +75,7 @@ def git_status_clean(state):
             if file['focused'] == 0:
                 text += "| " + file['file_name'][3:] + '\n'
             else:
-                text += "| [black on white]" + file['file_name'][3:] + '\n[/black on white]'
+                text += "> [black on white]" + file['file_name'][3:] + '\n[/black on white]'
 
     return text
     
@@ -91,28 +91,30 @@ Enter: Focus on a view
         text += (
 """ \
 Esc: Return to navigation    \
+C: Commit changes    \
 """
         )
         if state['focus_table'][1][0]:
             focused_file = get_git_status_focused_file(state)
-            if focused_file['type'] == "not_staged_for_commit":
-                text += (
+            if focused_file:
+                if focused_file['type'] == "not_staged_for_commit":
+                    text += (
 """\
 A: Add file to be commited    \
 R: Discard changes    \
 """)
-            elif focused_file['type'] == "to_be_commited":
-                text += (
+                elif focused_file['type'] == "to_be_commited":
+                    text += (
 """\
 R: Unstage    \
 """)
-            elif focused_file['type'] == "untracked":
-                text += (
+                elif focused_file['type'] == "untracked":
+                    text += (
 """\
 A: Add file to be commited    \
 """)
-            else:
-                text += "Arrow Keys: Navigate between files"
+                else:
+                    text += "Arrow Keys: Navigate between files"
     
     return text
 

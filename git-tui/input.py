@@ -1,5 +1,6 @@
 import msvcrt
 
+from git import git_add_file, get_git_status, git_restore_file
 
 def manage_input(key, state):
     if state['input_mode'] == "navigation":
@@ -46,6 +47,20 @@ def manage_input(key, state):
                 elif key == b'P':
                     state['direction'] = "down"
                     update_git_status_focus(state)
+
+            elif (key == b'a') or (key == b'A'):
+                git_add_file(state=state)
+                get_git_status(state=state)
+                if len(state['git_status']) > 0:
+                    state['git_status'][0]["focused"] = 1
+            elif (key == b'r') or (key == b'r'):
+                git_restore_file(state=state)
+                get_git_status(state=state)
+                if len(state['git_status']) > 0:
+                    state['git_status'][0]["focused"] = 1
+
+                
+
 
             
         

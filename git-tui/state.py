@@ -17,7 +17,10 @@ def create_state(layout):
     "git_status" : [],
     "git_branch" : "",
     "git_log" : [],
-    "debug" : ""
+    "debug" : "",
+    "typing_mode_focus_title": True,
+    "typed_commit_title": "",
+    "typed_commit_description": ""
 
 
 }

@@ -4,6 +4,7 @@ import os
 from render import get_git_status_focused_file
 
 cwd = r"C:\Users\jeanb\Documents\misc-code\fake-folder-to-test-git"
+# cwd = r"C:\Users\jeanb\Documents\misc-code\52-weeks-of-code\1-git-terminal-ui"
 
 def get_repo_name(state):
     result = subprocess.run(
@@ -28,16 +29,24 @@ def get_git_status(state):
     if not result.returncode:
 
         state['git_status'] = []
+        temp_git_status = []
 
         files = result.stdout.split('\n')
 
         for file in files:
-            if file.startswith('A') or file.startswith('M'):
-                state['git_status'].append({"file_name": file, 'type': "to_be_commited", "focused": False})
+            if (file.startswith('A')) or (file.startswith('M')):
+                temp_git_status.append({"file_name": file, 'type': "to_be_commited", "focused": False})
             if file.startswith(' '):
-                state['git_status'].append({"file_name": file, 'type': "not_staged_for_commit", "focused": False})
+                temp_git_status.append({"file_name": file, 'type': "not_staged_for_commit", "focused": False})
             if file.startswith('??'):
-                state['git_status'].append({"file_name": file, 'type': "untracked", "focused": False})
+                temp_git_status.append({"file_name": file, 'type': "untracked", "focused": False})
+
+        state['git_status'] = \
+            [file for file in temp_git_status if file['type'] == "to_be_commited"] + \
+            [file for file in temp_git_status if file['type'] == "not_staged_for_commit"] + \
+            [file for file in temp_git_status if file['type'] == "untracked"]
+            
+        
     
 
 def get_git_branch(state):
@@ -56,8 +65,11 @@ def get_git_log(state):
         ['git', 'log', '--oneline'],
         capture_output=True,
         text=True,
+        encoding="utf-8",
         cwd=cwd
     )
+
+
 
     if not result.returncode:
         state['git_log'] = result.stdout
@@ -100,6 +112,28 @@ def git_restore_file(state):
         state['debug'] = result.stdout
 
     return not result.returncode
+
+def git_commit(state):
+    result = subprocess.run(
+        [
+            'git', 
+            'commit', 
+            '-m', 
+            state['typed_commit_title'] + '\n' + state['typed_commit_description'], 
+        ],
+        capture_output=True, 
+        text=True,
+        cwd=cwd,
+    )
+
+    if not result.returncode:
+        state['debug'] = result.stdout
+
+    return not result.returncode
+
+
+
+
 
 
 

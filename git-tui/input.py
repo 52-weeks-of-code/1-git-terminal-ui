@@ -1,6 +1,6 @@
 import msvcrt
 
-from git import git_add_file, get_git_status, git_restore_file
+from git import git_add_file, get_git_status, git_restore_file, git_commit
 
 def manage_input(key, state):
     if state['input_mode'] == "navigation":
@@ -53,19 +53,66 @@ def manage_input(key, state):
                 get_git_status(state=state)
                 if len(state['git_status']) > 0:
                     state['git_status'][0]["focused"] = 1
-            elif (key == b'r') or (key == b'r'):
+            elif (key == b'r') or (key == b'R'):
                 git_restore_file(state=state)
                 get_git_status(state=state)
                 if len(state['git_status']) > 0:
                     state['git_status'][0]["focused"] = 1
-
-                
-
-
-            
+            elif (key == b'c') or (key == b'C'):
+                state['input_mode'] = "typing_navigation"     
         
         elif state['focus_table'][1][1]:
             pass
+
+    elif state['input_mode'] == "typing_navigation":
+        if key == b'\x1b':
+            state['debug'] = "Typing enabled"
+            state['input_mode'] = "navigation"
+        elif key == b'\r':
+            state['input_mode'] = "typing"
+        elif key == b'\t':
+            state['typing_mode_focus_title'] = not state['typing_mode_focus_title']
+        elif (key == b'c') or (key == b'C'):
+            worked = git_commit(state)
+            if worked:
+                state['input_mode'] = 'navigation'
+                state['typing_mode_focus_title'] = True
+                state['typed_commit_title'] = ""
+                state['typed_commit_description'] = ""
+
+
+
+
+        elif key == b'\xe0':
+            key = msvcrt.getch()
+            if key == b'H':
+                state['direction'] = "up"
+                state['typing_mode_focus_title'] = not state['typing_mode_focus_title']
+            elif key == b'P':
+                state['direction'] = "down"
+                state['typing_mode_focus_title'] = not state['typing_mode_focus_title']
+
+    elif state['input_mode'] == "typing":
+        if key == b'\x1b':
+            state['debug'] = "Typing enabled"
+            state['input_mode'] = "typing_navigation"
+        elif key == b'\xe0':
+            key = msvcrt.getch()
+            pass
+        elif (key == b'\r') and (not state['typing_mode_focus_title']):
+            state['typed_commit_description'] += '\n'
+        elif key == b'\x08':
+            if state['typing_mode_focus_title']:
+                state['typed_commit_title'] = state['typed_commit_title'][:-1]
+            else:
+                state['typed_commit_description'] = state['typed_commit_description'][:-1]
+        else: 
+            typed_letter = key.decode('cp850')
+            if state['typing_mode_focus_title']:
+                state['typed_commit_title'] = state['typed_commit_title'] + typed_letter
+            else:
+                state['typed_commit_description'] = state['typed_commit_description'] + typed_letter
+
 
 
 

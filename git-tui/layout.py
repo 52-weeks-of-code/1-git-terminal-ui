@@ -1,5 +1,5 @@
 from rich.layout import Layout
-
+from rich.text import Text
 
 def make_layout():
     layout = Layout()
@@ -25,3 +25,27 @@ def make_layout():
     )
 
     return layout
+
+def make_typing_layout():
+    typing_layout = Layout()
+
+    typing_layout.split_column(
+        Layout(renderable=Text(' '), name="temp1", ratio = 2),
+        Layout(name="center", ratio=6),
+        Layout(renderable=Text(' '), name='temp2', ratio =2),
+        Layout(name='keybinds', size =1)
+
+    )
+
+    typing_layout['center'].split_row(
+        Layout(renderable=Text(' '), name="temp3", ratio = 2),
+        Layout(name="input_box", ratio=6),
+        Layout(renderable=Text(' '), name='temp4', ratio =2)
+    )
+
+    typing_layout['input_box'].split_column(
+        Layout(name = "input_title", size = 3),
+        Layout(name = "input_description")
+    )
+
+    return typing_layout
